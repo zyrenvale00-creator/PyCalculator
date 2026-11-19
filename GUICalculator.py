@@ -37,32 +37,54 @@ def toggle_sign():
         display.delete(0, t.END)
         display.insert(t.END)
 
+# Button hover effects
+def on_enter(event):
+    if event.widget["text"] == "=":
+        event.widget.config(bg="#20B4D8")
+    else:
+        event.widget.config(bg="#505866")
+
+def on_leave(event, original_color):
+    event.widget.config(bg=original_color)
+
 # Window
 window = t.Tk()
 window.title("PyCalculator")
 window.resizable(False, False)
-window.configure(bg="#383636")
+window.configure(bg="#17191F")
+
+# Application heading
+heading = t.Label(
+    window,
+    text="PyCalculator",
+    font=("Segoe UI", 15, "bold"),
+    fg="#6BDCF8",
+    bg="#17191F"
+)
+heading.pack(anchor="w", padx=15, pady=(10, 0))
 
 # Display
 display = t.Entry(
     window,
-    font=("Arial", 24, "bold"),
-    fg="white",
-    bg="#1C1A1A",
+    font=("Segoe UI", 30, "bold"),
+    fg="#FFFFFF",
+    bg="#22252D",
     justify="right",
     cursor="xterm",
-    width=16,
+    width=14,
     relief="flat",
-    bd = 0
+    bd=0,
+    insertbackground="white"
 )
-display.pack(ipady=8, pady=5)
+display.pack(ipady=12, padx=10, pady=10)
+
 
 # Button Frame
 button_frame = t.Frame(
     window,
-    bg="#383636"
+    bg="#17191F"
 )
-button_frame.pack(pady=10)
+button_frame.pack(padx=8, pady=8)
 
 # Buttons
 buttons = [
@@ -79,17 +101,22 @@ top_symbols = ["C", "DEL", "%"]
 row_count = len(buttons)
 col_count = len(buttons[0])
 
+for col in range(col_count):
+    button_frame.grid_columnconfigure(col, weight=1)
+
 for row in range(row_count):
     for col in range(col_count):
 
         value = buttons[row][col]
 
-        if value in right_symbols:
-            color = "#E05215"
+        if value == "=":
+            color = "#1D95B3"
+        elif value in right_symbols:
+            color = "#263F4A"
         elif value in top_symbols:
-            color = "#8F8F8F"
+            color = "#424957"
         else:
-            color = "#3C3A3A"
+            color = "#292D36"
 
         if value == "DEL":
             command = lambda: display.delete(len(display.get()) - 1, t.END) if display.get() else None
@@ -105,16 +132,21 @@ for row in range(row_count):
         button = t.Button(
             button_frame,
             text=value,
-            font=("Arial", 23, "bold"),
+            font=("Segoe UI", 21, "bold"),
             bg=color,
-            fg="white",
-            activebackground="#605C5C",
-            width=3,
+            fg="#6BDCF8" if value in right_symbols else "white",
+            activebackground="#505866",
+            activeforeground="white",
+            width=4,
             height=1,
+            relief="flat",
+            bd=0,
+            cursor="hand2",
             command=command
         )
-
-        button.grid(row=row, column=col, padx=3, pady=3)
+        button.grid(row=row, column=col, padx=4, pady=4, sticky="nsew")
+        button.bind("<Enter>", on_enter)
+        button.bind("<Leave>", lambda event, c=color: on_leave(event, c))
 
 #Enter 
 display.bind("<Return>", lambda event: calculate())
